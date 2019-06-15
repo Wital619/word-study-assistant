@@ -11,7 +11,9 @@ const NavigationItems = () => {
     <ul className={classes.NavigationItems}>
       {auth.userId ? (
         <Fragment>
+          <NavigationItem link="/card">Card</NavigationItem>
           <NavigationItem link="/words">Words</NavigationItem>
+          <NavigationItem link="/user">User</NavigationItem>
           <NavigationItem link="/logout">Logout</NavigationItem>
         </Fragment>
       ) : (

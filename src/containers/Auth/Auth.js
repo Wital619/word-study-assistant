@@ -156,7 +156,7 @@ const Auth = props => {
   return (
     <div className={classes.Auth}>
       {error}
-      <div>
+      <div className={classes.AuthButtons}>
         <Button
           btnType="Primary"
           clicked={e => switchAuthModeHandler(e, false)}

@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Layout from './hoc/Layout/Layout';
 import WordsManager from './containers/WordsManager/WordsManager';
 import Auth from './containers/Auth/Auth';
+import CardManager from './containers/CardManager/CardManager';
+import User from './containers/User/User';
 import Logout from './containers/Auth/Logout/Logout';
 import AuthContext from './shared/auth-context';
 
@@ -48,7 +50,7 @@ const App = () => {
         const secondsUntilLogout =
           (expirationDate.getTime() - new Date().getTime()) / 1000;
 
-        login(token, userId);
+        login(userId, token);
         checkTimeout(secondsUntilLogout);
       } else {
         logout();
@@ -66,9 +68,11 @@ const App = () => {
   if (userData.userId) {
     routes = (
       <Switch>
+        <Route path="/card" component={CardManager} />
         <Route path="/words" component={WordsManager} />
+        <Route path="/user" component={User} />
         <Route path="/logout" component={Logout} />
-        <Redirect from="/" to="/words" />
+        <Redirect from="/" to="/card" />
       </Switch>
     );
   }

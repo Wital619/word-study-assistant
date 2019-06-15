@@ -1,19 +1,15 @@
 .Button {
-  background-color: transparent;
-  color: white;
   outline: none;
   border: 1px solid transparent;
   cursor: pointer;
   font: inherit;
   padding: 10px;
-  margin: 10px;
-  font-weight: bold;
   border-radius: 5px;
+  color: #fff;
 }
 
 .Button.Active {
-  border: 1px solid darkblue;
-  border-radius: 5px;
+  border: 1px solid #000;
 }
 
 .Button:disabled {
@@ -22,13 +18,25 @@
 }
 
 .Success {
-  color: #5c9210;
+  background: #5c9210;
 }
 
 .Danger {
-  color: #944317;
+  background: #944317;
 }
 
 .Primary {
-  color: blue;
+  background: blue;
+}
+
+.White {
+  background: #fff;
+}
+
+.Black {
+  background: #000;  
+}
+
+.LightRed {
+  background: #ea5e3d;
 }

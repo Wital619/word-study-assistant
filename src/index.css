@@ -25,6 +25,12 @@ body > div {
   padding-bottom: 30px;
 }
 
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
 a {
   text-decoration: none;
   color: #000;
