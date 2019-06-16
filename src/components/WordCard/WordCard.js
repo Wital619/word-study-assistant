@@ -73,9 +73,6 @@ const WordCard = props => {
           <p className={classes.Word}>привіт</p>
         </div>
         <div className={classes.SelectionWrapper}>{htmlMethodElement}</div>
-        <div className={classes.Controls}>
-          <Button btnType="Primary">Skip the word</Button>
-        </div>
       </div>
     </div>
   );

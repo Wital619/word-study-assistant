@@ -1,5 +1,5 @@
 .CardWrapper {
-  width: 80%;
+  width: 60%;
   margin: 50px auto 0;
 }
 
@@ -57,7 +57,6 @@
 }
 
 .SelectionWrapper {
-  border-bottom: 1px dashed #ccc;
   border-top: 1px dashed #ccc;
   padding: 10px 0;
 }
@@ -107,12 +106,4 @@
 .ChoicesSelectionItem:first-of-type,
 .ChoicesSelectionItem:nth-child(2) {
   margin-bottom: 10px;
-}
-
-.Controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  margin: 0;
 }

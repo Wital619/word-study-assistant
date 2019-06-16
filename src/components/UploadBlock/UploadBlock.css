@@ -1,0 +1,17 @@
+.FileInputWrapper {
+  margin: 10px 0;
+  text-align: center;
+}
+
+.UploadFilesInfo {
+  text-align: center;
+}
+
+.UploadFilesInfo p {
+  margin: 0;
+  font-size: 18px;
+}
+
+.UploadFilesInfo p:last-of-type {
+  margin-bottom: 10px;
+}

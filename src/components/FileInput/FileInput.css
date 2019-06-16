@@ -1,0 +1,37 @@
+.Input {
+  display: none;
+}
+
+.Input + .Label {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.Input:focus + .Label,
+.Input.has-focus + .Label {
+  outline: 1px dotted #000;
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.Input + .Label svg {
+  width: 15px;
+  height: 15px;
+  vertical-align: middle;
+  fill: currentColor;
+  margin-right: 6px;
+}
+
+.Input + .Label {
+  color: #f1e5e6;
+  background-color: green;
+}
+
+.Input:focus + .Label,
+.Input.has-focus + .Label,
+.Input + .Label:hover {
+  background-color: #075107;
+}
