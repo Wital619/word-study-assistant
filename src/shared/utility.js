@@ -18,3 +18,18 @@ export const checkValidity = (value, rules) => {
 
   return null;
 };
+
+export const getRandomIndex = keys => keys[Math.floor(Math.random() * keys.length)];
+export const getThreeRandomIndexes = keys => {
+  const newKeys = [];
+
+  while (newKeys.length < 3) {
+    const randKey = keys[Math.floor(Math.random() * keys.length)];
+
+    if (!newKeys.includes(randKey)) {
+      newKeys.push(randKey);
+    }
+  }
+
+  return newKeys;
+};

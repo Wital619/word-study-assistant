@@ -12,13 +12,13 @@ import Spinner from '../../components/UI/Spinner/Spinner';
 import wordsReducer, * as actions from './words-reducer';
 import axios from '../../shared/axios-words';
 
-const WordsManager = props => {
+const WordsManager = () => {
   const [wordsObject, setWordsObject] = useState(null);
   const [wordsState, dispatch] = useReducer(wordsReducer, {});
   const auth = useContext(AuthContext);
 
   useEffect(() => {
-    getUserWords();
+    getAllUserWords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -28,6 +28,7 @@ const WordsManager = props => {
     axios
       .put(`/users.json`, { [auth.userId]: JSON.stringify(wordsObject) })
       .then(() => {
+        getAllUserWords();
         dispatch({ type: actions.ADD_WORDS_SUCCESS });
       })
       .catch(err => {
@@ -35,11 +36,11 @@ const WordsManager = props => {
       });
   };
 
-  const getUserWords = () => {
+  const getAllUserWords = () => {
     dispatch({ type: actions.GET_WORDS });
 
     axios
-      .get(`/users.json`)
+      .get('/users.json')
       .then(res => {
         let userWords = null;
 
@@ -53,9 +54,7 @@ const WordsManager = props => {
           userWords = null;
         }
 
-        setTimeout(() => {
-          dispatch({ type: actions.GET_WORDS_SUCCESS, payload: userWords });
-        }, 3000);
+        dispatch({ type: actions.GET_WORDS_SUCCESS, payload: userWords });
       })
       .catch(err => {
         dispatch({ type: actions.GET_WORDS_FAIL, payload: err.message });
@@ -78,7 +77,7 @@ const WordsManager = props => {
 
   const getWordsObject = fileContent => {
     return fileContent.split('\n').reduce((acc, wordsMatch) => {
-      const tweakedWordsMatch = wordsMatch.trim().replace(/;/g, '');
+      const tweakedWordsMatch = wordsMatch.trim().replace(/[;?]/g, '');
 
       const [englishWord, translationsStr] = tweakedWordsMatch.split(' - ');
       acc[englishWord] = translationsStr.split(',');
@@ -95,6 +94,20 @@ const WordsManager = props => {
     const englishWordsArray = Object.keys(wordsState.words);
 
     wordsList = <WordsList words={englishWordsArray} />;
+  } else if (!wordsList) {
+    wordsList = (
+      <div
+        style={{
+          textAlign: 'center',
+          width: '100%',
+          marginTop: '50px',
+          fontWeight: 'bold',
+          color: 'green'
+        }}
+      >
+        You haven't uploaded any files with words!
+      </div>
+    );
   }
 
   const error = wordsState.error ? wordsState.error : null;
@@ -108,7 +121,7 @@ const WordsManager = props => {
         showUploadResult={Boolean(wordsObject)}
       />
       <hr />
-      {wordsList || <p>You have not uploaded any files with words</p>}
+      {wordsList}
       {error}
     </Fragment>
   );

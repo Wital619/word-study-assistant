@@ -51,12 +51,14 @@
 
 .Word {
   margin: 0;
-  font-size: 40px;
+  font-size: 35px;
+  text-align: center;
   color: #111;
   font-weight: bold;
 }
 
 .SelectionWrapper {
+  height: 111px;
   border-top: 1px dashed #ccc;
   padding: 10px 0;
 }
@@ -90,6 +92,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   height: 40px;
   width: 35%;
   border-radius: 5px;

@@ -1,5 +1,6 @@
-import React, { useRef, Fragment } from 'react';
+import React, { useRef } from 'react';
 import Button from '../UI/Button/Button';
+import Spinner from '../UI/Spinner/Spinner';
 
 import classes from './WordCard.css';
 
@@ -9,10 +10,10 @@ const WordCard = props => {
   const wordText = useRef();
 
   const guessWord = () => {
-    const word = wordText.current.value;
+    const word = wordText.current.value.trim();
 
-    if (word.trim() !== '') {
-      props.setGuessingWord(word);
+    if (word !== '') {
+      props.guessWord(word);
     }
   };
 
@@ -31,21 +32,22 @@ const WordCard = props => {
   );
 
   if (props.selectionMethod === 'choices') {
-    htmlMethodElement = (
-      <Fragment>
+    htmlMethodElement =
+      props.choiceWords && props.choiceWords.length ? (
         <ul className={classes.ChoicesSelectionWrapper}>
           {props.choiceWords.map(word => (
             <li
               key={word}
-              onClick={() => props.setGuessingWord(word)}
+              onClick={() => props.guessWord(word)}
               className={classes.ChoicesSelectionItem}
             >
               {word}
             </li>
           ))}
         </ul>
-      </Fragment>
-    );
+      ) : (
+        <Spinner marginTop="22px" />
+      );
   }
 
   return (
@@ -70,7 +72,11 @@ const WordCard = props => {
           Translate the word below into English
         </h4>
         <div className={classes.WordWrapper}>
-          <p className={classes.Word}>привіт</p>
+          {props.wordToGuess ? (
+            <p className={classes.Word}>{props.wordToGuess}</p>
+          ) : (
+            <Spinner marginTop="50px" />
+          )}
         </div>
         <div className={classes.SelectionWrapper}>{htmlMethodElement}</div>
       </div>
