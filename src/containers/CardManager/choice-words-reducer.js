@@ -10,7 +10,7 @@ const choiceWordsReducer = (state, action) => {
       };
     case GET_WORD_SUCCESS:
       return {
-        wordToGuess: action.payload.wordToGuess,
+        foreignWordToGuess: action.payload.foreignWordToGuess,
         correctEngWord: action.payload.correctEngWord,
         choices: action.payload.choices,
         loading: false,

@@ -70,7 +70,7 @@ const App = () => {
         <Route path="/card" component={CardManager} />
         <Route path="/words" component={WordsManager} />
         <Route path="/logout" component={Logout} />
-        <Redirect from="/" to="/words" />
+        <Redirect from="/" to="/card" />
       </Switch>
     );
   }

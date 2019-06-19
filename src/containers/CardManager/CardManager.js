@@ -21,21 +21,16 @@ const CardManager = props => {
     axios
       .get('/users.json')
       .then(res => {
-        const userWords = res.data[auth.userId];
+        const allUserWords = res.data[auth.userId];
 
-        if (userWords) {
-          const [wordToGuess, correctEngWord, choices] = getCardWords(
-            userWords
-          );
+        if (allUserWords) {
+          const parsedWords = JSON.parse(allUserWords);
+          const allEngWords = Object.keys(parsedWords);
 
-          dispatch({
-            type: actions.GET_WORD_SUCCESS,
-            payload: {
-              wordToGuess,
-              correctEngWord,
-              choices
-            }
-          });
+          localStorage.setItem('allUserWords', allUserWords);
+          localStorage.setItem('choiceWords', allEngWords);
+
+          getOneWordData();
         }
       })
       .catch(err => {
@@ -43,28 +38,45 @@ const CardManager = props => {
       });
   };
 
-  const getCardWords = userWords => {
+  const getOneWordData = () => {
+    // TODO: Create one more list of allUserWords that should be unchangable 
     let foreignWordToGuess = null;
     let correctEngWord = null;
     let choices = [];
+    const allUserWords = JSON.parse(localStorage.getItem('allUserWords'));
+    const engWords = Object.keys(allUserWords);
+    const choiceWords = localStorage.getItem('choiceWords').split(',');
+    correctEngWord = getRandomIndex(engWords);
+    foreignWordToGuess = allUserWords[correctEngWord].join(', ');
 
-    if (userWords) {
-      const words = JSON.parse(userWords);
-      const engWords = Object.keys(words);
-      correctEngWord = getRandomIndex(engWords);
-      foreignWordToGuess = words[correctEngWord][0];
+    const engWordsChoices = choiceWords.filter(word => word !== correctEngWord);
+    choices = getThreeRandomIndexes(engWordsChoices);
+    choices.push(correctEngWord);
 
-      const engWordsChoices = engWords.filter(word => word !== correctEngWord);
-      choices = getThreeRandomIndexes(engWordsChoices);
-      choices.push(correctEngWord);
-      // TODO: додати в кук послідовність
-    }
-
-    return [foreignWordToGuess, correctEngWord, choices];
+    dispatch({
+      type: actions.GET_WORD_SUCCESS,
+      payload: { foreignWordToGuess, correctEngWord, choices }
+    });
   };
 
   const guessWordHandler = word => {
-    console.log(word === cardWordsState.correctEngWord);
+    if (word === cardWordsState.correctEngWord) {
+      excludeEnglishWord(word);
+
+      setTimeout(() => {
+        getOneWordData();
+      }, 100);
+
+      return true;
+    }
+
+    return false;
+  };
+
+  const excludeEnglishWord = word => {
+    const allUserWords = JSON.parse(localStorage.getItem('allUserWords'));
+    delete allUserWords[word];
+    localStorage.setItem('allUserWords', JSON.stringify(allUserWords));
   };
 
   return (
@@ -73,7 +85,7 @@ const CardManager = props => {
       setSelectionMethod={setSelectionMethod}
       guessWord={guessWordHandler}
       choiceWords={cardWordsState.choices}
-      wordToGuess={cardWordsState.wordToGuess}
+      foreignWordToGuess={cardWordsState.foreignWordToGuess}
     />
   );
 };

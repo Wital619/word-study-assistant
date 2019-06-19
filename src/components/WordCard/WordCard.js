@@ -8,13 +8,34 @@ const SELECTION_METHODS = ['input', 'choices'];
 
 const WordCard = props => {
   const wordText = useRef();
+  const highlightElement = useRef();
 
-  const guessWord = () => {
+  const guessWordByInput = () => {
     const word = wordText.current.value.trim();
 
     if (word !== '') {
-      props.guessWord(word);
+      const isCorrect = props.guessWord(word);
+
+      checkCorrectness(isCorrect);
     }
+  };
+
+  const guessWordByChoice = word => {
+    const isCorrect = props.guessWord(word);
+
+    checkCorrectness(isCorrect);
+  };
+
+  const checkCorrectness = isCorrect => {
+    if (isCorrect) {
+      highlightElement.current.style.background = 'green';
+    } else {
+      highlightElement.current.style.background = 'red';
+    }
+
+    setTimeout(() => {
+      highlightElement.current.style.background = '#fff';
+    }, 100);
   };
 
   let htmlMethodElement = (
@@ -25,7 +46,7 @@ const WordCard = props => {
         className={classes.WordInput}
         placeholder="Enter a correct word"
       />
-      <Button btnType="Primary" clicked={guessWord}>
+      <Button btnType="Primary" clicked={guessWordByInput}>
         Next
       </Button>
     </div>
@@ -38,7 +59,7 @@ const WordCard = props => {
           {props.choiceWords.map(word => (
             <li
               key={word}
-              onClick={() => props.guessWord(word)}
+              onClick={() => guessWordByChoice(word)}
               className={classes.ChoicesSelectionItem}
             >
               {word}
@@ -71,9 +92,9 @@ const WordCard = props => {
         <h4 className={classes.WordHeader}>
           Translate the word below into English
         </h4>
-        <div className={classes.WordWrapper}>
-          {props.wordToGuess ? (
-            <p className={classes.Word}>{props.wordToGuess}</p>
+        <div className={classes.WordWrapper} ref={highlightElement}>
+          {props.foreignWordToGuess ? (
+            <p className={classes.Word}>{props.foreignWordToGuess}</p>
           ) : (
             <Spinner marginTop="50px" />
           )}
