@@ -68,7 +68,7 @@ const WordsManager = () => {
     new Promise((resolve, reject) => {
       reader.onload = e => resolve(e.target.result);
       reader.onerror = error => reject(error);
-      reader.readAsText(file);
+      reader.readAsText(file, 'cp1251');
     }).then(content => {
       const wordsObject = getWordsObject(content);
       setWordsObject(wordsObject);

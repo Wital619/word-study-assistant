@@ -15,6 +15,7 @@ const WordCard = props => {
 
     if (word !== '') {
       const isCorrect = props.guessWord(word);
+      wordText.current.value = '';
 
       checkCorrectness(isCorrect);
     }

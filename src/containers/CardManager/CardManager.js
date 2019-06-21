@@ -1,14 +1,25 @@
-import React, { useState, useEffect, useContext, useReducer } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useReducer,
+  Fragment
+} from 'react';
 import WordCard from '../../components/WordCard/WordCard';
 import axios from '../../shared/axios-words';
 import AuthContext from '../../shared/auth-context';
 import wordsReducer, * as actions from './choice-words-reducer';
-import { getRandomIndex, getThreeRandomIndexes } from '../../shared/utility';
+import {
+  getRandomIndex,
+  getThreeRandomIndexes,
+  localStorageFactory
+} from '../../shared/utility';
 
 const CardManager = props => {
   const [selectionMethod, setSelectionMethod] = useState('choices');
   const [cardWordsState, dispatch] = useReducer(wordsReducer, {});
   const auth = useContext(AuthContext);
+  const storage = localStorageFactory();
 
   useEffect(() => {
     getWordToGuess();
@@ -27,8 +38,9 @@ const CardManager = props => {
           const parsedWords = JSON.parse(allUserWords);
           const allEngWords = Object.keys(parsedWords);
 
-          localStorage.setItem('allUserWords', allUserWords);
-          localStorage.setItem('choiceWords', allEngWords);
+          storage.set('allUserWords', allUserWords);
+          storage.set('unchangableWords', allUserWords);
+          storage.set('choiceWords', allEngWords, true);
 
           getOneWordData();
         }
@@ -39,13 +51,21 @@ const CardManager = props => {
   };
 
   const getOneWordData = () => {
-    // TODO: Create one more list of allUserWords that should be unchangable 
     let foreignWordToGuess = null;
     let correctEngWord = null;
     let choices = [];
-    const allUserWords = JSON.parse(localStorage.getItem('allUserWords'));
+    let allUserWords = storage.get('allUserWords', true);
+
+    if (Object.keys(allUserWords).length === 0) {
+      allUserWords = storage.copyAndGet(
+        'unchangableWords',
+        'allUserWords',
+        true
+      );
+    }
+
     const engWords = Object.keys(allUserWords);
-    const choiceWords = localStorage.getItem('choiceWords').split(',');
+    const choiceWords = storage.get('choiceWords', true);
     correctEngWord = getRandomIndex(engWords);
     foreignWordToGuess = allUserWords[correctEngWord].join(', ');
 
@@ -74,19 +94,25 @@ const CardManager = props => {
   };
 
   const excludeEnglishWord = word => {
-    const allUserWords = JSON.parse(localStorage.getItem('allUserWords'));
+    const allUserWords = storage.get('allUserWords', true);
     delete allUserWords[word];
-    localStorage.setItem('allUserWords', JSON.stringify(allUserWords));
+    storage.set('allUserWords', allUserWords, true);
   };
 
   return (
-    <WordCard
-      selectionMethod={selectionMethod}
-      setSelectionMethod={setSelectionMethod}
-      guessWord={guessWordHandler}
-      choiceWords={cardWordsState.choices}
-      foreignWordToGuess={cardWordsState.foreignWordToGuess}
-    />
+    <Fragment>
+      {cardWordsState.error ? (
+        <div>{cardWordsState.error}</div>
+      ) : (
+        <WordCard
+          selectionMethod={selectionMethod}
+          setSelectionMethod={setSelectionMethod}
+          guessWord={guessWordHandler}
+          choiceWords={cardWordsState.choices}
+          foreignWordToGuess={cardWordsState.foreignWordToGuess}
+        />
+      )}
+    </Fragment>
   );
 };
 

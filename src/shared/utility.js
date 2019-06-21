@@ -19,7 +19,9 @@ export const checkValidity = (value, rules) => {
   return null;
 };
 
-export const getRandomIndex = keys => keys[Math.floor(Math.random() * keys.length)];
+export const getRandomIndex = keys =>
+  keys[Math.floor(Math.random() * keys.length)];
+
 export const getThreeRandomIndexes = keys => {
   const newKeys = [];
 
@@ -33,3 +35,24 @@ export const getThreeRandomIndexes = keys => {
 
   return newKeys;
 };
+
+export const localStorageFactory = () => ({
+  get: function(key, withJSON = false) {
+    return withJSON
+      ? JSON.parse(localStorage.getItem(key))
+      : localStorage.getItem(key);
+  },
+  set: function(key, value, withJSON = false) {
+    if (withJSON) {
+      localStorage.setItem(key, JSON.stringify(value));
+    } else {
+      localStorage.setItem(key, value);
+    }
+  },
+  copyAndGet: function(from, to, withJSON) {
+    const fromStorageData = this.get(from);
+    this.set(to, fromStorageData);
+
+    return withJSON ? JSON.parse(fromStorageData) : fromStorageData;
+  }
+});
