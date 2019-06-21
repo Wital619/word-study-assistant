@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Button from '../UI/Button/Button';
 import Spinner from '../UI/Spinner/Spinner';
 
@@ -9,6 +9,13 @@ const SELECTION_METHODS = ['input', 'choices'];
 const WordCard = props => {
   const wordText = useRef();
   const highlightElement = useRef();
+
+  useEffect(() => {
+    if (props.selectionMethod === 'input') {
+      wordText.current.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.selectionMethod, props.foreignWordToGuess]);
 
   const guessWordByInput = () => {
     const word = wordText.current.value.trim();

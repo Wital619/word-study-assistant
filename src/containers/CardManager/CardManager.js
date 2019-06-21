@@ -10,9 +10,10 @@ import axios from '../../shared/axios-words';
 import AuthContext from '../../shared/auth-context';
 import wordsReducer, * as actions from './choice-words-reducer';
 import {
-  getRandomIndex,
-  getThreeRandomIndexes,
-  localStorageFactory
+  getRandomArrayElem,
+  getThreeRandomArrayElems,
+  localStorageFactory,
+  getRandomNumberByRange
 } from '../../shared/utility';
 
 const CardManager = props => {
@@ -66,12 +67,13 @@ const CardManager = props => {
 
     const engWords = Object.keys(allUserWords);
     const choiceWords = storage.get('choiceWords', true);
-    correctEngWord = getRandomIndex(engWords);
+    correctEngWord = getRandomArrayElem(engWords);
     foreignWordToGuess = allUserWords[correctEngWord].join(', ');
 
     const engWordsChoices = choiceWords.filter(word => word !== correctEngWord);
-    choices = getThreeRandomIndexes(engWordsChoices);
-    choices.push(correctEngWord);
+    const randomPosition = getRandomNumberByRange(0, 3);
+    choices = getThreeRandomArrayElems(engWordsChoices);
+    choices.splice(randomPosition, 0, correctEngWord);
 
     dispatch({
       type: actions.GET_WORD_SUCCESS,

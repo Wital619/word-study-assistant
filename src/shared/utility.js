@@ -19,10 +19,10 @@ export const checkValidity = (value, rules) => {
   return null;
 };
 
-export const getRandomIndex = keys =>
+export const getRandomArrayElem = keys =>
   keys[Math.floor(Math.random() * keys.length)];
 
-export const getThreeRandomIndexes = keys => {
+export const getThreeRandomArrayElems = keys => {
   const newKeys = [];
 
   while (newKeys.length < 3) {
@@ -34,6 +34,10 @@ export const getThreeRandomIndexes = keys => {
   }
 
   return newKeys;
+};
+
+export const getRandomNumberByRange = (min, max) => {
+  return Math.round(min + Math.random() * (max - min));
 };
 
 export const localStorageFactory = () => ({
