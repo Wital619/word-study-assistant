@@ -4,17 +4,31 @@ import FileInput from '../FileInput/FileInput';
 
 import classes from './UploadBlock.css';
 
-const UploadBlock = props => {
+const UploadBlock = ({
+  wordsLength,
+  addWords,
+  showUploadResult,
+  uploadFile
+}) => {
   let uploadResult = null;
 
-  if (props.showUploadResult) {
+  if (showUploadResult) {
+    const instruction =
+      wordsLength > 3 ? (
+        <Fragment>
+          <p>Click the button below to add them to your learning list</p>
+          <Button btnType="Primary" clicked={addWords}>
+            Add New Words
+          </Button>
+        </Fragment>
+      ) : (
+        <p>This is too small to load. Please upload at least 4 words.</p>
+      );
+
     uploadResult = (
       <div className={classes.UploadFilesInfo}>
-        <p>You've uploaded {props.wordsLength} word(s)!</p>
-        <p>Click the button below to add them to your learning list</p>
-        <Button btnType="Primary" clicked={props.addWords}>
-          Add New Words
-        </Button>
+        <p>You have uploaded {wordsLength} word(s)!</p>
+        {instruction}
       </div>
     );
   }
@@ -22,7 +36,7 @@ const UploadBlock = props => {
   return (
     <Fragment>
       <div className={classes.FileInputWrapper}>
-        <FileInput onChangedHandler={props.uploadFile} />
+        <FileInput onChangedHandler={uploadFile} />
       </div>
       {uploadResult}
     </Fragment>

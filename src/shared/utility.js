@@ -22,11 +22,11 @@ export const checkValidity = (value, rules) => {
 export const getRandomArrayElem = keys =>
   keys[Math.floor(Math.random() * keys.length)];
 
-export const getThreeRandomArrayElems = keys => {
+export const getThreeRandomArrayElems = array => {
   const newKeys = [];
 
   while (newKeys.length < 3) {
-    const randKey = keys[Math.floor(Math.random() * keys.length)];
+    const randKey = array[Math.floor(Math.random() * array.length)];
 
     if (!newKeys.includes(randKey)) {
       newKeys.push(randKey);

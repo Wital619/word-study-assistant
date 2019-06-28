@@ -1,63 +1,23 @@
-import React, {
-  useContext,
-  useReducer,
-  useEffect,
-  useState,
-  Fragment
-} from 'react';
+import React, { useContext, useState } from 'react';
 import AuthContext from '../../shared/auth-context';
-import WordsList from '../../components/WordsList/WordsList';
 import UploadBlock from '../../components/UploadBlock/UploadBlock';
 import Spinner from '../../components/UI/Spinner/Spinner';
-import wordsReducer, * as actions from './words-reducer';
 import axios from '../../shared/axios-words';
+
+import classes from './WordsManager.css';
 
 const WordsManager = () => {
   const [wordsObject, setWordsObject] = useState(null);
-  const [wordsState, dispatch] = useReducer(wordsReducer, {});
+  const [loading, setLoading] = useState(false);
   const auth = useContext(AuthContext);
 
-  useEffect(() => {
-    getAllUserWords();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const addWordsHandler = () => {
-    dispatch({ type: actions.ADD_WORDS });
+    setLoading(true);
 
     axios
       .put(`/users.json`, { [auth.userId]: JSON.stringify(wordsObject) })
       .then(() => {
-        getAllUserWords();
-        dispatch({ type: actions.ADD_WORDS_SUCCESS });
-      })
-      .catch(err => {
-        dispatch({ type: actions.ADD_WORDS_FAIL, payload: err.message });
-      });
-  };
-
-  const getAllUserWords = () => {
-    dispatch({ type: actions.GET_WORDS });
-
-    axios
-      .get('/users.json')
-      .then(res => {
-        let userWords = null;
-
-        if (res.data) {
-          Object.keys(res.data).forEach(key => {
-            if (key === auth.userId) {
-              userWords = JSON.parse(res.data[key]);
-            }
-          });
-        } else {
-          userWords = null;
-        }
-
-        dispatch({ type: actions.GET_WORDS_SUCCESS, payload: userWords });
-      })
-      .catch(err => {
-        dispatch({ type: actions.GET_WORDS_FAIL, payload: err.message });
+        setLoading(false);
       });
   };
 
@@ -71,6 +31,7 @@ const WordsManager = () => {
       reader.readAsText(file, 'cp1251');
     }).then(content => {
       const wordsObject = getWordsObject(content);
+
       setWordsObject(wordsObject);
     });
   };
@@ -86,45 +47,22 @@ const WordsManager = () => {
     }, {});
   };
 
-  let wordsList = null;
-
-  if (wordsState.loading) {
-    wordsList = <Spinner />;
-  } else if (wordsState.words) {
-    const englishWordsArray = Object.keys(wordsState.words);
-
-    wordsList = <WordsList words={englishWordsArray} />;
-  } else if (!wordsList) {
-    wordsList = (
-      <div
-        style={{
-          textAlign: 'center',
-          width: '100%',
-          marginTop: '50px',
-          fontWeight: 'bold',
-          color: 'green'
-        }}
-      >
-        You haven't uploaded any files with words!
-      </div>
-    );
-  }
-
-  const error = wordsState.error ? wordsState.error : null;
-
-  return (
-    <Fragment>
+  let content = (
+    <div className={classes.WordsWrapper}>
       <UploadBlock
         uploadFile={uploadFileHandler}
         addWords={addWordsHandler}
         wordsLength={wordsObject ? Object.keys(wordsObject).length : 0}
         showUploadResult={Boolean(wordsObject)}
       />
-      <hr />
-      {wordsList}
-      {error}
-    </Fragment>
+    </div>
   );
+
+  if (loading) {
+    content = <Spinner />;
+  }
+
+  return content;
 };
 
 export default WordsManager;

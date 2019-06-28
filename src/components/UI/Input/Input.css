@@ -1,13 +1,12 @@
 .Input {
   width: 100%;
-  padding: 10px;
   box-sizing: border-box;
 }
 
 .Label {
   font-weight: bold;
   display: block;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
 .InputElement {
@@ -31,7 +30,11 @@
   background-color: #fda49a;
 }
 
-.ValidationError {
+.ValidationMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
   color: red;
-  margin: 5px 0;
+  font-size: 14px;
 }

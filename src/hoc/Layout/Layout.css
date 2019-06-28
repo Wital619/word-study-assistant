@@ -1,6 +1,0 @@
-.ParticlesWrapper {
-  position: absolute;
-  z-index: -1;
-  width: 100%;
-  height: calc(100% - 90px);
-}

@@ -1,14 +1,9 @@
-import React, {
-  useState,
-  useEffect,
-  useContext,
-  useReducer,
-  Fragment
-} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import WordCard from '../../components/WordCard/WordCard';
+import Spinner from '../../components/UI/Spinner/Spinner';
 import axios from '../../shared/axios-words';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import AuthContext from '../../shared/auth-context';
-import wordsReducer, * as actions from './choice-words-reducer';
 import {
   getRandomArrayElem,
   getThreeRandomArrayElems,
@@ -16,19 +11,27 @@ import {
   getRandomNumberByRange
 } from '../../shared/utility';
 
+const initialWordsState = {
+  foreignWordToGuess: null,
+  correctEngWord: null,
+  choices: []
+};
+
 const CardManager = props => {
   const [selectionMethod, setSelectionMethod] = useState('choices');
-  const [cardWordsState, dispatch] = useReducer(wordsReducer, {});
+  const [wordsState, setWordsState] = useState(initialWordsState);
+  const [loading, setLoading] = useState(false);
   const auth = useContext(AuthContext);
   const storage = localStorageFactory();
 
   useEffect(() => {
-    getWordToGuess();
+    console.log('fetch');
+    fetchWords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getWordToGuess = () => {
-    dispatch({ type: actions.GET_WORD });
+  const fetchWords = () => {
+    setLoading(true);
 
     axios
       .get('/users.json')
@@ -40,14 +43,17 @@ const CardManager = props => {
           const allEngWords = Object.keys(parsedWords);
 
           storage.set('allUserWords', allUserWords);
-          storage.set('unchangableWords', allUserWords);
           storage.set('choiceWords', allEngWords, true);
 
           getOneWordData();
+        } else {
+          setWordsState(initialWordsState);
         }
+
+        setLoading(false);
       })
       .catch(err => {
-        dispatch({ type: actions.GET_WORD_FAIL, payload: err.message });
+        setLoading(false);
       });
   };
 
@@ -56,14 +62,6 @@ const CardManager = props => {
     let correctEngWord = null;
     let choices = [];
     let allUserWords = storage.get('allUserWords', true);
-
-    if (Object.keys(allUserWords).length === 0) {
-      allUserWords = storage.copyAndGet(
-        'unchangableWords',
-        'allUserWords',
-        true
-      );
-    }
 
     const engWords = Object.keys(allUserWords);
     const choiceWords = storage.get('choiceWords', true);
@@ -75,14 +73,11 @@ const CardManager = props => {
     choices = getThreeRandomArrayElems(engWordsChoices);
     choices.splice(randomPosition, 0, correctEngWord);
 
-    dispatch({
-      type: actions.GET_WORD_SUCCESS,
-      payload: { foreignWordToGuess, correctEngWord, choices }
-    });
+    setWordsState({ foreignWordToGuess, correctEngWord, choices });
   };
 
   const guessWordHandler = word => {
-    if (word === cardWordsState.correctEngWord) {
+    if (word === wordsState.correctEngWord) {
       excludeEnglishWord(word);
 
       setTimeout(() => {
@@ -98,24 +93,29 @@ const CardManager = props => {
   const excludeEnglishWord = word => {
     const allUserWords = storage.get('allUserWords', true);
     delete allUserWords[word];
-    storage.set('allUserWords', allUserWords, true);
+
+    if (Object.keys(allUserWords).length === 0) {
+      fetchWords();
+    } else {
+      storage.set('allUserWords', allUserWords, true);
+    }
   };
 
-  return (
-    <Fragment>
-      {cardWordsState.error ? (
-        <div>{cardWordsState.error}</div>
-      ) : (
-        <WordCard
-          selectionMethod={selectionMethod}
-          setSelectionMethod={setSelectionMethod}
-          guessWord={guessWordHandler}
-          choiceWords={cardWordsState.choices}
-          foreignWordToGuess={cardWordsState.foreignWordToGuess}
-        />
-      )}
-    </Fragment>
-  );
+  let content = <Spinner />;
+
+  if (!loading) {
+    content = (
+      <WordCard
+        selectionMethod={selectionMethod}
+        setSelectionMethod={setSelectionMethod}
+        guessWord={guessWordHandler}
+        choiceWords={wordsState.choices}
+        foreignWordToGuess={wordsState.foreignWordToGuess}
+      />
+    );
+  }
+
+  return props.isError ? null : content;
 };
 
-export default CardManager;
+export default withErrorHandler(CardManager, axios);

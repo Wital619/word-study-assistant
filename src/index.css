@@ -2,13 +2,13 @@
 *:before,
 *:after {
   box-sizing: border-box;
- }
+}
 
- html,
- body {
+html,
+body {
   height: 100%;
   position: relative;
- }
+}
 
 body {
   margin: 0;
@@ -19,10 +19,9 @@ body {
 
 body > div {
   position: relative;
-  min-height: 100vh;
+  height: 100%;
   overflow: hidden;
   display: block;
-  padding-bottom: 30px;
 }
 
 ul {

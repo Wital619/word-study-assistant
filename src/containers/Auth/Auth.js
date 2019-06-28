@@ -1,17 +1,22 @@
 import React, { useState, useContext } from 'react';
-import axios from '../../shared/axios-words';
+import axios from 'axios';
 import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import Spinner from '../../components/UI/Spinner/Spinner';
-import { updateObject, checkValidity } from '../../shared/utility';
+import Tabs from '../../components/UI/Tabs/Tabs';
 import AuthContext from '../../shared/auth-context';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import { updateObject, checkValidity } from '../../shared/utility';
 
 import classes from './Auth.css';
+
+// TODO: Notifications as in Academind, Auth center through pos
+
+const AUTH_TABS = ['sign In', 'sign up'];
 
 const Auth = props => {
   const [authForm, setAuthForm] = useState({
     email: {
-      elementType: 'input',
       elementConfig: {
         type: 'email',
         placeholder: 'Your Email'
@@ -31,7 +36,6 @@ const Auth = props => {
       touched: false
     },
     password: {
-      elementType: 'input',
       elementConfig: {
         type: 'password',
         placeholder: 'Your Password'
@@ -51,8 +55,8 @@ const Auth = props => {
       touched: false
     }
   });
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState(null);
+  const [authTab, setAuthTab] = useState('sign In');
+  const [formIsValid, setFormIsValid] = useState(false);
   const [loading, setLoading] = useState(false);
   const auth = useContext(AuthContext);
 
@@ -81,13 +85,13 @@ const Auth = props => {
     }
 
     setAuthForm(updatedControls);
-    setIsSignUp(formIsValid);
+    setFormIsValid(formIsValid);
   };
 
   const submitHandler = e => {
     e.preventDefault();
 
-    const mode = isSignUp ? 'signupNewUser' : 'verifyPassword';
+    const mode = authTab === 'sign up' ? 'signupNewUser' : 'verifyPassword';
     const authData = {
       email: authForm.email.value,
       password: authForm.password.value,
@@ -109,20 +113,14 @@ const Auth = props => {
         localStorage.setItem('token', res.data.idToken);
         localStorage.setItem('userId', res.data.localId);
         localStorage.setItem('expirationDate', expirationDate);
-        
+
         setLoading(false);
         auth.login(res.data.localId, res.data.idToken);
         auth.checkTimeout(res.data.expiresIn);
       })
-      .catch(err => {
-        setError(err.response.data.error);
+      .catch(() => {
         setLoading(false);
       });
-  };
-
-  const switchAuthModeHandler = (e, isSignUp) => {
-    e.preventDefault();
-    setIsSignUp(isSignUp);
   };
 
   const formElementsArray = [];
@@ -134,50 +132,39 @@ const Auth = props => {
     });
   }
 
-  let form = formElementsArray.map(formElement => {
-    return (
-      <Input
-        key={formElement.id}
-        elementType={formElement.config.elementType}
-        elementConfig={formElement.config.elementConfig}
-        value={formElement.config.value}
-        validationMessage={formElement.config.validationMessage}
-        touched={formElement.config.touched}
-        shouldValidate={Boolean(formElement.config.validation)}
-        changed={e => inputChangedHandler(e, formElement.id)}
-      />
-    );
-  });
+  let form = (
+    <div className={classes.SpinnerWithMargin}>
+      <Spinner />
+    </div>
+  );
 
-  if (loading) {
-    form = <Spinner />;
+  if (!loading) {
+    form = (
+      <form className={classes.AuthForm}>
+        {formElementsArray.map(formElement => (
+          <Input
+            key={formElement.id}
+            elementConfig={formElement.config.elementConfig}
+            value={formElement.config.value}
+            validationMessage={formElement.config.validationMessage}
+            touched={formElement.config.touched}
+            shouldValidate={Boolean(formElement.config.validation)}
+            changed={e => inputChangedHandler(e, formElement.id)}
+          />
+        ))}
+      </form>
+    );
   }
 
   return (
     <div className={classes.Auth}>
-      {error}
-      <div className={classes.AuthButtons}>
-        <Button
-          btnType="Primary"
-          clicked={e => switchAuthModeHandler(e, false)}
-          active={!isSignUp}
-        >
-          SIGN IN
-        </Button>
-        <Button
-          btnType="Primary"
-          clicked={e => switchAuthModeHandler(e, true)}
-          active={isSignUp}
-        >
-          SIGN UP
-        </Button>
-      </div>
-      <form>{form}</form>
-      <Button btnType="Success" clicked={submitHandler}>
+      <Tabs tabs={AUTH_TABS} onChangeTab={setAuthTab} activeTab={authTab} />
+      {form}
+      <Button btnType="Success" clicked={submitHandler} disabled={!formIsValid}>
         SUBMIT
       </Button>
     </div>
   );
 };
 
-export default Auth;
+export default withErrorHandler(Auth, axios);

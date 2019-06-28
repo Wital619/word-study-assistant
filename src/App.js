@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Layout from './hoc/Layout/Layout';
-import WordsManager from './containers/WordsManager/WordsManager';
 import Auth from './containers/Auth/Auth';
 import CardManager from './containers/CardManager/CardManager';
+import WordsManager from './containers/WordsManager/WordsManager';
 import Logout from './containers/Auth/Logout/Logout';
 import AuthContext from './shared/auth-context';
 
@@ -68,7 +68,7 @@ const App = () => {
     routes = (
       <Switch>
         <Route path="/card" component={CardManager} />
-        <Route path="/words" component={WordsManager} />
+        <Route path="/uploader" component={WordsManager} />
         <Route path="/logout" component={Logout} />
         <Redirect from="/" to="/card" />
       </Switch>

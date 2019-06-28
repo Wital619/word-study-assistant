@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import Button from '../UI/Button/Button';
-import Spinner from '../UI/Spinner/Spinner';
+import Tabs from '../UI/Tabs/Tabs';
 
 import classes from './WordCard.css';
 
@@ -35,14 +35,16 @@ const WordCard = props => {
   };
 
   const checkCorrectness = isCorrect => {
+    const element = highlightElement.current;
+
     if (isCorrect) {
-      highlightElement.current.style.background = 'green';
+      element.style.background = 'green';
     } else {
-      highlightElement.current.style.background = 'red';
+      element.style.background = 'red';
     }
 
     setTimeout(() => {
-      highlightElement.current.style.background = '#fff';
+      element.style.background = '#fff';
     }, 100);
   };
 
@@ -61,56 +63,39 @@ const WordCard = props => {
   );
 
   if (props.selectionMethod === 'choices') {
-    htmlMethodElement =
-      props.choiceWords && props.choiceWords.length ? (
-        <ul className={classes.ChoicesSelectionWrapper}>
-          {props.choiceWords.map(word => (
-            <li
-              key={word}
-              onClick={() => guessWordByChoice(word)}
-              className={classes.ChoicesSelectionItem}
-            >
-              {word}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <Spinner marginTop="22px" />
-      );
-  }
-
-  return (
-    <div className={classes.CardWrapper}>
-      <ul className={classes.SelectionMethods}>
-        {SELECTION_METHODS.map(method => (
+    htmlMethodElement = (
+      <ul className={classes.ChoicesSelectionWrapper}>
+        {props.choiceWords.map(word => (
           <li
-            key={method}
-            style={{
-              background:
-                method === props.selectionMethod ? 'green' : 'transparent'
-            }}
-            className={classes.SelectionMethod}
-            onClick={() => props.setSelectionMethod(method)}
+            key={word}
+            onClick={() => guessWordByChoice(word)}
+            className={classes.ChoicesSelectionItem}
           >
-            {method}
+            {word}
           </li>
         ))}
       </ul>
+    );
+  }
+
+  return props.choiceWords.length ? (
+    <div className={classes.CardWrapper}>
+      <Tabs
+        tabs={SELECTION_METHODS}
+        onChangeTab={props.setSelectionMethod}
+        activeTab={props.selectionMethod}
+      />
       <div className={classes.WordCard}>
         <h4 className={classes.WordHeader}>
           Translate the word below into English
         </h4>
         <div className={classes.WordWrapper} ref={highlightElement}>
-          {props.foreignWordToGuess ? (
-            <p className={classes.Word}>{props.foreignWordToGuess}</p>
-          ) : (
-            <Spinner marginTop="50px" />
-          )}
+          <p className={classes.Word}>{props.foreignWordToGuess}</p>
         </div>
         <div className={classes.SelectionWrapper}>{htmlMethodElement}</div>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 export default WordCard;

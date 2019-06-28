@@ -1,17 +1,22 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import Header from '../../components/UI/Header/Header';
 import Footer from '../../components/UI/Footer/Footer';
+import AuthContext from '../../shared/auth-context';
 
-import classes from './Layout.css';
+const Layout = props => {
+  const auth = useContext(AuthContext);
 
-const layout = props => {
-  return (
+  return auth.userId ? (
     <Fragment>
       <Header />
-      <main className={classes.Content}>{props.children}</main>
+      <main style={{ height: 'calc(100% - 90px)' }}>{props.children}</main>
       <Footer />
+    </Fragment>
+  ) : (
+    <Fragment>
+      <main style={{ height: '100%' }}>{props.children}</main>
     </Fragment>
   );
 };
 
-export default layout;
+export default Layout;
