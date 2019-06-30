@@ -60,3 +60,7 @@ export const localStorageFactory = () => ({
     return withJSON ? JSON.parse(fromStorageData) : fromStorageData;
   }
 });
+
+export const getDateByAmountOfTime = seconds => {
+  return new Date(new Date().getTime() + seconds * 1000);
+};

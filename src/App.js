@@ -6,55 +6,75 @@ import CardManager from './containers/CardManager/CardManager';
 import WordsManager from './containers/WordsManager/WordsManager';
 import Logout from './containers/Auth/Logout/Logout';
 import AuthContext from './shared/auth-context';
+import { getDateByAmountOfTime } from './shared/utility';
+import axios from 'axios';
 
 const App = () => {
-  const [userData, setUserData] = useState({
-    userId: null,
-    token: null
-  });
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     autoCheckState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const login = (userId, token) => {
-    setUserData({ userId, token });
+  const login = userId => {
+    setUserId(userId);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('expirationDate');
-    localStorage.removeItem('userId');
-
-    setUserData({ userId: null, token: null });
+    localStorage.clear();
+    setUserId(null);
   };
 
-  const checkTimeout = expirationDate => {
+  const checkTimeout = secondsUntilLogout => {
     setTimeout(() => {
-      logout();
-    }, expirationDate * 1000);
+      getNewToken();
+    }, secondsUntilLogout * 1000);
   };
 
   const autoCheckState = () => {
-    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
 
-    if (!token) {
-      logout();
-    } else {
+    if (userId) {
+      login(userId);
+
       const expirationDate = new Date(localStorage.getItem('expirationDate'));
+      const secondsUntilLogout =
+        (expirationDate.getTime() - new Date().getTime()) / 1000;
 
-      if (expirationDate > new Date()) {
-        const userId = localStorage.getItem('userId');
-        const secondsUntilLogout =
-          (expirationDate.getTime() - new Date().getTime()) / 1000;
-
-        login(userId, token);
+      if (secondsUntilLogout > 600) {
         checkTimeout(secondsUntilLogout);
       } else {
-        logout();
+        getNewToken();
       }
     }
+  };
+
+  const getNewToken = () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    const url = `https://securetoken.googleapis.com/v1/token?key=AIzaSyBJvUWvJZ-H3JHZjoNczcnvEsxFFqDJXVI`;
+    const body = {
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken
+    };
+
+    axios
+      .post(url, body)
+      .then(res => {
+        const newToken = res.data.id_token;
+        const expirationTime = parseInt(res.data.expires_in, 10);
+        const newExpirationDate = getDateByAmountOfTime(expirationTime);
+
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('expirationDate', newExpirationDate);
+
+        checkTimeout(expirationTime);
+      })
+      .catch(() => {
+        console.log('Error Occured. Logout...');
+        logout();
+      });
   };
 
   let routes = (
@@ -64,7 +84,7 @@ const App = () => {
     </Switch>
   );
 
-  if (userData.userId) {
+  if (userId) {
     routes = (
       <Switch>
         <Route path="/card" component={CardManager} />
@@ -79,8 +99,7 @@ const App = () => {
     <BrowserRouter>
       <AuthContext.Provider
         value={{
-          userId: userData.userId,
-          token: userData.token,
+          userId,
           login,
           logout,
           checkTimeout

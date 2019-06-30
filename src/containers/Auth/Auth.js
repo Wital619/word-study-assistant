@@ -6,13 +6,25 @@ import Spinner from '../../components/UI/Spinner/Spinner';
 import Tabs from '../../components/UI/Tabs/Tabs';
 import AuthContext from '../../shared/auth-context';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
-import { updateObject, checkValidity } from '../../shared/utility';
+import {
+  updateObject,
+  checkValidity,
+  getDateByAmountOfTime
+} from '../../shared/utility';
 
 import classes from './Auth.css';
 
-// TODO: Notifications as in Academind, Auth center through pos
-
 const AUTH_TABS = ['sign In', 'sign up'];
+
+// TODO:
+// 1) refreshToken function;
+// 2) notifications (in auth, and when fetch words);
+// 3) fix reload bug;
+// 4) redirect after uploading;
+// 5) maybe add validation on uploaded file content
+// 5) add system of points
+// 6) add padding to word area, and to choices words too
+// 7) add autofocus if word wasn't guessed
 
 const Auth = props => {
   const [authForm, setAuthForm] = useState({
@@ -106,17 +118,18 @@ const Auth = props => {
         authData
       )
       .then(res => {
-        const expirationDate = new Date(
-          new Date().getTime() + res.data.expiresIn * 1000
-        );
+        const expirationTime = parseInt(res.data.expiresIn, 10);
+        const expirationDate = getDateByAmountOfTime(expirationTime);
 
         localStorage.setItem('token', res.data.idToken);
+        localStorage.setItem('refreshToken', res.data.refreshToken);
         localStorage.setItem('userId', res.data.localId);
         localStorage.setItem('expirationDate', expirationDate);
 
         setLoading(false);
-        auth.login(res.data.localId, res.data.idToken);
-        auth.checkTimeout(res.data.expiresIn);
+
+        auth.login(res.data.localId);
+        auth.checkTimeout(expirationTime);
       })
       .catch(() => {
         setLoading(false);
